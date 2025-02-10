@@ -128,7 +128,11 @@ build_android()
         return 1
     fi
 
-    export TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64
+    if [ "$(uname)" == "Darwin" ]; then
+        export TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/darwin-x86_64
+    else
+        export TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64
+    fi
 
     export TARGET=aarch64-linux-android
     export API=21
@@ -166,14 +170,18 @@ build_android_x86_64()
     fi
 
     if [ -z "$ANDROID_NDK" ]; then
-
+    
         echo "ERROR: ANDROID_NDK environment variable is not set."
         echo "       It must be an absolute path to the root directory of Android NDK."
         echo "       For instance /home/test/Android/Sdk/ndk/23.1.7779620"
         return 1
     fi
 
-    export TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64
+    if [ "$(uname)" == "Darwin" ]; then
+        export TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/darwin-x86_64
+    else
+        export TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64
+    fi
 
     export TARGET=x86_64-linux-android
     export API=21
@@ -214,7 +222,7 @@ build_ios()
     export TARGET=arm64-apple-darwin
     export MIN_IOS_VERSION=8.0
 
-    export ARCH_FLAGS="-arch arm64 -arch arm64e"
+    export ARCH_FLAGS="-arch arm64"
     export OPT_FLAGS="-O3 -g3 -fembed-bitcode"
     HOST_FLAGS="${ARCH_FLAGS} -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot $(xcrun --sdk ${SDK} --show-sdk-path)"
 
@@ -248,7 +256,7 @@ build_ios_simulator()
 		case "$ARCH" in
 			"arm64" )
 				echo "Building for iPhone Simulator arm64"
-				ARCH_FLAGS="-arch arm64 -arch arm64e"
+				ARCH_FLAGS="-arch arm64"
 				;;
 			"x86_64" )
 				echo "Building for iPhone Simulator x86_64"
@@ -282,10 +290,6 @@ build_ios_simulator()
 		
 		cd ..
 	done
-
-	mkdir -p "${GMP_DIR}/package_iphone_simulator/lib"
-	lipo "${libs[@]}" -create -output "${GMP_DIR}/package_iphone_simulator/lib/libgmp.a"
-	echo "Wrote universal fat library for iPhone Simulator arm64/x86_64 to ${GMP_DIR}/package_iphone_simulator/lib/libgmp.a"
 }
 
 build_macos_arch()
